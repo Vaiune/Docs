@@ -49,6 +49,16 @@ Kestrel is great for serving dynamic content from ASP.NET, however the web servi
 
 For the purposes of this guide, we are going to use a single instance of Nginx that runs on the same server alongside your HTTP server. However, based on your requirements you may choose a different setup.
 
+Since requests are forwarded by reverse-proxy, use `ForwardedHeaders` middleware from `Microsoft.AspNetCore.HttpOverrides` package in order to set redirect URI with the `X-Forwarded-For` and `X-Forwarded-Proto` headers instead of `Request.Scheme` and `Request.Host`.
+Putting this call (in `Configure()` in *Startup.cs*) before calling `app.UseFacebookAuthentication` or similar.
+Don't forget to call `app.UseIdentity` before any other external providers.
+```csharp
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+```
+
 ### Install Nginx
 
 ```
